@@ -4,7 +4,7 @@
 author:Herish
 datetime:2019/4/3 14:05
 software: PyCharm
-description: 
+description: 大众点评酒店爬取用户评论信息
 '''
 import scrapy
 from scrapy import Request
