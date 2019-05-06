@@ -16,7 +16,6 @@ class DazongdianpingPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            print(item)
             postItem = dict(item)
             self.connection.insert_one(postItem)
             print("成功插入一条数据")

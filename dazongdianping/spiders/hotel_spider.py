@@ -5,7 +5,9 @@ author:Herish
 datetime:2019/4/3 14:05
 software: PyCharm
 description: 大众点评酒店爬取用户评论信息
+https://blog.csdn.net/sinat_32651363/article/details/85123876
 '''
+
 import scrapy
 from scrapy import Request
 from dazongdianping.items import DazongdianpingItem
@@ -29,7 +31,7 @@ class HotelSpider(scrapy.Spider):
         'Accept-Encoding': 'gzip, deflate',
         'Accept-Language': 'zh-CN,zh;q=0.9',
         'Connection': 'keep-alive',
-        'Cookie': '__mta=256752180.1554272415181.1554282586785.1554346008645.4; cityInfo=%7B%22cityId%22%3A1%2C%22cityName%22%3A%22%E4%B8%8A%E6%B5%B7%22%2C%22provinceId%22%3A0%2C%22parentCityId%22%3A0%2C%22cityOrderId%22%3A0%2C%22isActiveCity%22%3Afalse%2C%22cityEnName%22%3A%22shanghai%22%2C%22cityPyName%22%3Anull%2C%22cityAreaCode%22%3Anull%2C%22cityAbbrCode%22%3Anull%2C%22isOverseasCity%22%3Afalse%2C%22isScenery%22%3Afalse%2C%22TuanGouFlag%22%3A0%2C%22cityLevel%22%3A0%2C%22appHotLevel%22%3A0%2C%22gLat%22%3A0%2C%22gLng%22%3A0%2C%22directURL%22%3Anull%2C%22standardEnName%22%3Anull%7D; _lxsdk_cuid=169e1c3fe45c8-0f754e083bee5c-7a1437-1fa400-169e1c3fe45c8; _lxsdk=169e1c3fe45c8-0f754e083bee5c-7a1437-1fa400-169e1c3fe45c8; _hc.v=8c5f514c-2752-fba0-ff6a-98b837acea0a.1554270912; aburl=1; cy=1; cye=shanghai; _dp.ac.v=8f2de5eb-4671-48a9-a5c5-a385de91ead1; dper=49309ed75899790a8e62c349b50bb374e1aad5d35f033731a577248f0db0f6b6a2a021d7d8a5b9e612c6cb74e948b24ce28814fd96cd8ee773a7cac2553180d1e7a5c110b9b65f7d960dcc7ed7759bf4397084008e19aa9d473980a1d944a937; ua=%E5%92%A9%E5%92%A9%E5%92%A9%E9%85%B1; ctu=41c8e4152f0f10ae8cfafba2c05747080a291cbec5eca405b4ffa5d152eaa12a; selectLevel=%7B%22level1%22%3A%221%22%2C%22level2%22%3A%221%22%7D; ll=7fd06e815b796be3df069dec7836c3df; s_ViewType=10; _lxsdk_s=169eb0c944d-26a-3fe-237%7C%7C745',
+        'Cookie': 's_ViewType=10; _lxsdk_cuid=16a66be5838c8-0e92fe3848c569-e323069-1fa400-16a66be5838c8; _lxsdk=16a66be5838c8-0e92fe3848c569-e323069-1fa400-16a66be5838c8; _hc.v=a84aaa1c-edb5-f595-f6d2-34f37f1dbaa8.1556501912; dper=23228a5f32fa5a7a6d12419653eedbacf0dcc4f4637e43f3fad26370ab076867c8f6db4e463dc07c6922984bacfc28cf70954720aa539348fca4ccf72f6e6febb0c1b41507587eab35377dcf5355569ffc19cedd44a21f279c33358c2fdb020a; ll=7fd06e815b796be3df069dec7836c3df; ua=dpuser_4009668476; ctu=be12c2bd5a0922c59d8c17218fe5448046d6a0e0d764296271c0adf8330c5bfb; uamo=17121192617; _lxsdk_s=16a8bced4f4-63c-e21-c19%7C%7C1',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
     }
 
@@ -97,7 +99,7 @@ class HotelSpider(scrapy.Spider):
         # <bb>样式表
         background_image_link1 = 'http:' + background_image_link[1]
         # <span>样式表
-        background_image_link2 = 'http:' + background_image_link[2]
+        background_image_link2 = 'http:' + background_image_link[0]
         return html, background_image_link1, background_image_link2
 
     def get_font_dict(self, html, background_image_link):
@@ -126,6 +128,7 @@ class HotelSpider(scrapy.Spider):
 
             except:
                 font_dict[class_name] = ''
+        print(font_dict)
         return font_dict
 
     def get_font_dict_by_offset(self, url):
@@ -147,7 +150,6 @@ class HotelSpider(scrapy.Spider):
                     sub_font_dict[x_offset] = font
 
                 font_dict[y_offset] = sub_font_dict
-
         else:
             font_list = re.findall(r'<text.*?y="(.*?)">(.*?)<', html)
 
@@ -159,7 +161,7 @@ class HotelSpider(scrapy.Spider):
                     sub_font_dict[x_offset] = font
 
                 font_dict[y_offset] = sub_font_dict
-
+            # print(font_dict)
         return font_dict
 
     def parse(self, response):
@@ -196,31 +198,31 @@ class HotelSpider(scrapy.Spider):
 
                 time.sleep(2)
 
-                html = self.get_conment_page(html, font_dict2)
-                doc = pq(html)
-
-                item['hotel_address'] = doc('.address-info').text().replace('\xa0', '')  # 存在隐藏字段，需要转换
-                assert item
-                results = doc('.reviews-items > ul > li ').items()
-                for com in results:
-                    it = DazongdianpingItem()
-                    it = item
-                    it['comment_user'] = com.find('.dper-info > a').text()
-                    it['comment_desc'] = com.find('.Hide').text().replace('\t', '').replace(
-                        '\n', '').replace('\xa0', '')
-
-                    desc_list = com.find('.Hide').text().replace('\t', '').replace(
-                        '\n', '')
-
-                    pic_list = []
-                    for p in com.find('.review-pictures > ul > li > a').items():
-                        pic_list.append('http://www.dianping.com' + p.attr('href'))
-                    it['comment_pics'] = pic_list
-                    # print(it)
-                    yield it
-            # n += 1
-            # if n == 1:
-            #     break
+                # html = self.get_conment_page(html, font_dict2)
+                # doc = pq(html)
+                #
+                # item['hotel_address'] = doc('.address-info').text().replace('\xa0', '')  # 存在隐藏字段，需要转换
+                # assert item
+                # results = doc('.reviews-items > ul > li ').items()
+                # for com in results:
+                #     it = DazongdianpingItem()
+                #     it = item
+                #     it['comment_user'] = com.find('.dper-info > a').text()
+                #     it['comment_desc'] = com.find('.Hide').text().replace('\t', '').replace(
+                #         '\n', '').replace('\xa0', '')
+                #
+                #     desc_list = com.find('.Hide').text().replace('\t', '').replace(
+                #         '\n', '')
+                #
+                #     pic_list = []
+                #     for p in com.find('.review-pictures > ul > li > a').items():
+                #         pic_list.append('http://www.dianping.com' + p.attr('href'))
+                #     it['comment_pics'] = pic_list
+                #     print(it)
+                    # yield it
+            n += 1
+            if n == 1:
+                break
 
 
 

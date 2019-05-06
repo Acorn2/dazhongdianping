@@ -8,4 +8,5 @@ description:
 '''
 from scrapy import cmdline
 
-cmdline.execute('scrapy crawl hotel_spider'.split(' '))
+# cmdline.execute('scrapy crawl hotel_spider'.split(' '))
+cmdline.execute('scrapy crawl hotel_spider_correct'.split(' '))
